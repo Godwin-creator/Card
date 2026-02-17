@@ -1,0 +1,483 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GWIN, Premium Card</title>
+    <style>
+        /* --- 1. AMBIANCE & FOND --- */
+        :root {
+            --bg: #050505;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glow-primary: #8b5cf6; /* Violet Neon */
+            --glow-secondary: #06b6d4; /* Cyan Neon */
+            --gold: #fbbf24;
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px; /* Réduit légèrement le padding global aussi pour mobile */
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.15), transparent 25%);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animation de fond subtile */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* --- 2. HEADER --- */
+        .header {
+            text-align: center;
+            margin-bottom: 40px; /* Réduit un peu l'espace sous le titre */
+            position: relative;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255,255,255,0.1);
+            margin: 0;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        /* --- 3. GRILLE --- */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            /* C'est ICI que j'ai réduit l'espace gigantesque */
+            gap: 15px; 
+            padding-bottom: 100px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* --- 4. LA CARTE (MASTERPIECE) --- */
+        .credit-card {
+            width: 100%;
+            height: 240px;
+            border-radius: 24px;
+            position: relative;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                0 20px 50px rgba(0,0,0,0.5),
+                inset 0 0 0 1px rgba(255,255,255,0.05);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 30px;
+            box-sizing: border-box;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        /* Effet Holographique / Shine au survol */
+        .credit-card::after {
+            content: "";
+            position: absolute;
+            top: 0; left: -100%; width: 200%; height: 100%;
+            background: linear-gradient(
+                115deg, 
+                transparent 30%, 
+                rgba(255, 255, 255, 0.05) 45%, 
+                rgba(255, 255, 255, 0.15) 50%, 
+                rgba(255, 255, 255, 0.05) 55%, 
+                transparent 70%
+            );
+            transition: all 0.6s ease;
+            transform: skewX(-20deg);
+            pointer-events: none;
+        }
+
+        .credit-card:hover::after {
+            left: 100%;
+            transition: all 0.8s ease;
+        }
+
+        .credit-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 
+                0 30px 60px rgba(0,0,0,0.6),
+                0 0 20px rgba(139, 92, 246, 0.2), /* Glow violet */
+                inset 0 0 0 1px rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.2);
+            z-index: 10;
+        }
+
+        /* --- ÉLÉMENTS DE LA CARTE --- */
+        
+        /* Top Row: Puce & Logo */
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        /* Puce EMV en Pure CSS */
+        .chip {
+            width: 50px;
+            height: 38px;
+            background: linear-gradient(135deg, #eebb5d 0%, #d49e38 100%);
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 0 2px 5px rgba(0,0,0,0.2);
+        }
+        /* Lignes de la puce */
+        .chip::before {
+            content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1px;
+            background: rgba(0,0,0,0.3);
+        }
+        .chip::after {
+            content: ''; position: absolute; left: 33%; top: 0; width: 1px; height: 100%;
+            background: rgba(0,0,0,0.3);
+            box-shadow: 16px 0 0 rgba(0,0,0,0.3);
+        }
+
+        /* Logo Contactless */
+        .contactless {
+            position: absolute;
+            top: 35px;
+            right: 30px;
+            opacity: 0.7;
+        }
+        .wifi-symbol {
+            width: 20px; height: 20px;
+            border: 2px solid transparent;
+            border-top-color: #fff;
+            border-radius: 50%;
+            position: relative;
+            transform: rotate(45deg);
+        }
+
+        /* Numéro de carte */
+        .card-number {
+            font-family: var(--font-mono);
+            font-size: 26px;
+            letter-spacing: 3px;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            margin: 20px 0;
+            user-select: all; /* MAGIQUE : Double clic sélectionne tout */
+            position: relative;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        
+        .card-number:hover {
+            color: var(--glow-secondary);
+            text-shadow: 0 0 15px var(--glow-secondary);
+            cursor: pointer;
+        }
+
+        .card-number::selection {
+            background: var(--glow-primary);
+            color: white;
+        }
+
+        /* Bottom Row: Infos */
+        .card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .card-info-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            margin-bottom: 5px;
+        }
+
+        .card-value {
+            font-family: var(--font-mono);
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            user-select: text;
+        }
+
+        /* --- LOGOS CSS PURS --- */
+        .logo-mastercard {
+            display: flex;
+        }
+        .circle {
+            width: 36px; height: 36px; border-radius: 50%;
+            mix-blend-mode: hard-light;
+        }
+        .c-red { background: #eb001b; opacity: 0.8; }
+        .c-orange { background: #f79e1b; opacity: 0.8; margin-left: -22px; }
+
+        .logo-visa {
+            font-weight: 900;
+            font-style: italic;
+            font-size: 32px;
+            color: #fff;
+            letter-spacing: -1px;
+        }
+
+        /* --- SEARCH --- */
+        .search-container {
+            margin: 0 auto 50px auto;
+            max-width: 500px;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            padding: 18px 25px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.03);
+            color: #fff;
+            font-size: 16px;
+            backdrop-filter: blur(10px);
+            outline: none;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .search-input:focus {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--glow-primary);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1 class="title">GWIN  </h1>
+        <div class="subtitle">Premium Card Database</div>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Rechercher une carte...">
+    </div>
+
+    <div class="card-grid" id="grid">
+        </div>
+
+    <script>
+        /* --- DONNÉES BRUTES --- */
+        const rawData = `
+5518271574903531|06|2028|650
+5518271574901055|06|2028|402
+5518271574956406|06|2028|150
+5518271574914231|06|2028|582
+5518271574937166|06|2028|745
+5518271574952645|06|2028|878
+5518271574962529|06|2028|387
+5518271574900412|06|2028|768
+5518271574943081|06|2028|836
+5518271574947488|06|2028|016
+5518271574902368|06|2028|553
+5518271574984747|06|2028|282
+5518271574945334|06|2028|108
+5518271574988656|06|2028|112
+5518271574966611|06|2028|283
+5518271574940756|06|2028|507
+5518271574973385|06|2028|708
+5518271574982360|06|2028|754
+5518271574964335|06|2028|028
+5518271574973369|06|2028|247
+5518271574985868|06|2028|182
+5518271574923430|06|2028|055
+5518271574953684|06|2028|728
+5518271574957370|06|2028|346
+5518271574938040|06|2028|854
+5518271574908563|06|2028|130
+5518271574922457|06|2028|080
+5518271574967403|06|2028|648
+5518271574932217|06|2028|042
+5518271574906559|06|2028|343
+5518271574954542|06|2028|011
+5518271574930757|06|2028|348
+5518271574956752|06|2028|373
+5518271574941739|06|2028|054
+5518271574964418|06|2028|378
+5518271574943545|06|2028|168
+5518271574920774|06|2028|418
+5518271574955887|06|2028|081
+5518271574964087|06|2028|320
+5518271574974151|06|2028|843
+5518271574923307|06|2028|146
+5518271574983236|06|2028|313
+5518271574928884|06|2028|402
+5518271574954468|06|2028|644
+5518271574961737|06|2028|886
+5518271574948304|06|2028|151
+5518271574935509|06|2028|566
+5518271574965233|06|2028|847
+5518271574976776|06|2028|237
+5518271574975406|06|2028|205
+5518271574926706|06|2028|432
+5518271574903861|06|2028|834
+5518271574927183|06|2028|182
+5518271574986114|06|2028|506
+5518271574942356|06|2028|540
+5518271574950615|06|2028|604
+5518271574960044|06|2028|066
+5518271574983418|06|2028|065
+5518271574971801|06|2028|803
+5518271574901238|06|2028|020
+5518271574988003|06|2028|027
+5518271574960861|06|2028|732
+5518271574971850|06|2028|131
+5518271574957016|06|2028|886
+5518271574941333|06|2028|518
+5518271574907136|06|2028|872
+5518271574903051|06|2028|287
+5518271574906104|06|2028|158
+5518271574948478|06|2028|367
+5518271574967528|06|2028|258
+5518271574943214|06|2028|768
+5518271574947272|06|2028|008
+5518271574983566|06|2028|328
+5518271574960804|06|2028|448
+5518271574975224|06|2028|565
+5518271574906872|06|2028|366
+5518271574947785|06|2028|271
+5518271574903036|06|2028|017
+5518271574955002|06|2028|335
+5518271574981768|06|2028|010
+5518271574982543|06|2028|851
+5518271574970829|06|2028|725
+5518271574962073|06|2028|385
+5518271574970555|06|2028|061
+5518271574967171|06|2028|704
+5518271574900024|06|2028|788
+5518271574954526|06|2028|657
+5518271574980018|06|2028|216
+5518271574953528|06|2028|088
+5518271574914561|06|2028|008
+5518271574947330|06|2028|423
+5518271574961729|06|2028|351
+5518271574951464|06|2028|733
+5518271574926805|06|2028|083
+5518271574903747|06|2028|221
+5518271574950102|06|2028|886
+5518271574916632|06|2028|433
+5518271574972262|06|2028|321
+5518271574975588|06|2028|740
+5518271574935426|06|2028|861`;
+
+        /* --- LOGIQUE --- */
+        const grid = document.getElementById('grid');
+        const searchInput = document.getElementById('searchInput');
+
+        // Parser les données
+        const cards = rawData.trim().split('\n').map(line => {
+            const [num, month, year, cvv] = line.trim().split('|');
+            return { num, month, year, cvv, full: line };
+        }).filter(c => c.num);
+
+        // Formater le numéro 0000 0000...
+        const formatNum = (n) => n.replace(/(\d{4})/g, '$1 ').trim();
+
+        // Générer le logo selon le BIN
+        const getLogo = (num) => {
+            if(num.startsWith('5')) {
+                return `<div class="logo-mastercard"><div class="circle c-red"></div><div class="circle c-orange"></div></div>`;
+            } else if (num.startsWith('4')) {
+                return `<div class="logo-visa">VISA</div>`;
+            } else {
+                return `<div class="logo-visa">CARD</div>`; // Fallback
+            }
+        };
+
+        // Render function
+        function render(filter = '') {
+            grid.innerHTML = '';
+            const filtered = cards.filter(c => c.full.includes(filter));
+
+            filtered.forEach((card, i) => {
+                const el = document.createElement('div');
+                el.className = 'credit-card';
+                // Animation d'entrée en cascade
+                el.style.opacity = '0';
+                el.style.animation = `fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards ${i * 0.05}s`;
+
+                el.innerHTML = `
+                    <div class="card-top">
+                        <div class="chip"></div>
+                        <div class="card-brand">${getLogo(card.num)}</div>
+                    </div>
+                    
+                    <div class="card-number" title="Double-clic pour sélectionner">${formatNum(card.num)}</div>
+                    
+                    <div class="card-bottom">
+                        <div class="card-info-group">
+                            <span class="card-label">Titulaire</span>
+                            <span class="card-value">NEXUS MEMBER</span>
+                        </div>
+                        <div class="card-info-group" style="text-align: right;">
+                            <span class="card-label">Expires</span>
+                            <span class="card-value">${card.month}/${card.year.slice(-2)}</span>
+                        </div>
+                         <div class="card-info-group" style="text-align: right; margin-left: 20px;">
+                            <span class="card-label">CVC</span>
+                            <span class="card-value">${card.cvv}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(el);
+            });
+        }
+
+        // Ajouter Keyframes dynamiquement pour éviter d'encombrer le CSS
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `
+            @keyframes fadeInUp {
+                from { opacity: 0; transform: translateY(40px) scale(0.9); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+        // Init
+        render();
+
+        // Search Listener
+        searchInput.addEventListener('input', (e) => render(e.target.value));
+
+    </script>
+</body>
+</html>
